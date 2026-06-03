@@ -1,8 +1,8 @@
-# DirectBooks Playwright + Cucumber
+# DirectBooks Playwright + Cucumber + TypeScript
 
-End-to-end tests for the DirectBooks public website using Playwright, Cucumber, and TypeScript.
+End-to-end tests for the DirectBooks public website using Playwright, Cucumber, and TypeScript, running nightly via GitHub Actions.
 
-## How Playwright and Cucumber Work Together
+## Playwright and Cucumber Work Together
 
 Cucumber is the **test runner**. It reads `.feature` files written in Gherkin syntax (`Given/When/Then`) and matches each step to TypeScript step definitions in `src/`. Playwright is used inside those step definitions to control the browser — navigating pages, clicking elements, and asserting UI state.
 
@@ -21,6 +21,21 @@ cucumber-js --require-module ts-node/register --require "src/**/*.ts" features/*
 - `features/**/*.feature` — the Gherkin scenarios to run
 
 `@playwright/test` is **not** the runner here — Cucumber owns that role. Playwright is used purely as a browser automation library inside the steps.
+
+## IDE Setup (VS Code)
+
+Install the [Cucumber (Gherkin) Full Support](https://marketplace.visualstudio.com/items?itemName=alexkrechik.cucumberautocomplete) extension.
+
+The `.vscode/settings.json` file is already configured to point the extension at the step definitions:
+
+```json
+{
+  "cucumber.glue": ["src/steps/**/*.ts"],
+  "cucumber.features": ["features/**/*.feature"]
+}
+```
+
+This enables step highlighting, navigation between feature steps and their implementations, and autocomplete.
 
 ## Install
 
