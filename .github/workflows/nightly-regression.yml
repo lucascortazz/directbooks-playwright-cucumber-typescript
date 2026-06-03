@@ -1,0 +1,35 @@
+name: Nightly Regression
+
+on:
+  schedule:
+    # Runs daily at 02:00 America/Sao_Paulo.
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  regression:
+    name: Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run regression tests
+        run: npm run test:e2e
