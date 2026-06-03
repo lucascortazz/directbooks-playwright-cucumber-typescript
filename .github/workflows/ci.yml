@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  e2e:
-    name: Typecheck and E2E
+  typecheck:
+    name: Typecheck
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -28,8 +28,3 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
-
-      - name: Run E2E tests
-        run: npm run test:e2e
