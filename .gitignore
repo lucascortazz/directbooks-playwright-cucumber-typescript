@@ -14,11 +14,8 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
-# Cucumber and test reports
+# Test reports
 reports/
-cucumber-report/
-cucumber-report.html
-cucumber-report.json
 *.xml
 
 # Logs

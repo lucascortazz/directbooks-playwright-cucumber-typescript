@@ -1,47 +1,28 @@
-# DirectBooks Playwright + Cucumber + TypeScript
+# DirectBooks Playwright + TypeScript
 
-End-to-end tests for the DirectBooks public website using Playwright, Cucumber, and TypeScript, running nightly via GitHub Actions.
+End-to-end tests for the DirectBooks public website using Playwright and TypeScript, running nightly across multiple browsers via GitHub Actions.
 
-## Playwright and Cucumber Work Together
+## How It Works
 
-Cucumber is the **test runner**. It reads `.feature` files written in Gherkin syntax (`Given/When/Then`) and matches each step to TypeScript step definitions in `src/`. Playwright is used inside those step definitions to control the browser — navigating pages, clicking elements, and asserting UI state.
+Playwright Test is both the **test runner and browser automation library**. Tests are written as `.spec.ts` files organised by page, using the Page Object Model to keep selectors separate from test logic.
 
-1. Gherkin describes what to do in plain English.
-2. Cucumber finds the matching step definition for each line.
-3. The step definition calls Playwright to actually do the automated steps.
-
-The `test:e2e` script wires it all up:
-
-```bash
-cucumber-js --require-module ts-node/register --require "src/**/*.ts" features/**/*.feature
+```
+src/
+├── fixtures/       # Custom base-test extending Playwright with all page objects
+└── pages/          # Page Object Model — selectors and actions per page
+tests/              # Spec files, one per site section
+playwright.config.ts
 ```
 
-- `ts-node/register` — lets Cucumber load TypeScript step files directly
-- `--require "src/**/*.ts"` — loads all step definitions and support code (hooks, world, page objects)
-- `features/**/*.feature` — the Gherkin scenarios to run
+A custom base fixture (`src/fixtures/base-test.ts`) extends Playwright's `test` with every page object pre-instantiated. Spec files import from it instead of `@playwright/test`, so there's no manual `new Page(page)` wiring in tests.
 
-`@playwright/test` is **not** the runner here — Cucumber owns that role. Playwright is used purely as a browser automation library inside the steps.
-
-## IDE Setup (VS Code)
-
-Install the [Cucumber (Gherkin) Full Support](https://marketplace.visualstudio.com/items?itemName=alexkrechik.cucumberautocomplete) extension.
-
-The `.vscode/settings.json` file is already configured to point the extension at the step definitions:
-
-```json
-{
-  "cucumber.glue": ["src/steps/**/*.ts"],
-  "cucumber.features": ["features/**/*.feature"]
-}
-```
-
-This enables step highlighting, navigation between feature steps and their implementations, and autocomplete.
+Tests run in parallel across three browser engines — Chromium, Firefox, and WebKit — using Playwright's native project support.
 
 ## Install
 
 ```bash
 npm install
-npx playwright install --with-deps chromium
+npx playwright install --with-deps
 ```
 
 ## Run Locally
@@ -52,28 +33,69 @@ Typecheck:
 npm run typecheck
 ```
 
-Run all E2E tests:
+Run all tests across all browsers:
 
 ```bash
-npm run test:e2e
+npm test
 ```
 
-Run a single scenario:
+Run on a single browser:
 
 ```bash
-npm run test:e2e:one -- "Validate homepage content"
-npm run test:e2e:one -- "Validate FAQ page content"
-npm run test:e2e:one -- "Validate Contact page content"
-npm run test:e2e:one -- "Validate Community Portal login page"
+npm run test:chromium
+npm run test:firefox
+npm run test:webkit
+```
+
+Run in headed mode (watch the browser):
+
+```bash
+npm run test:headed
+```
+
+Open the HTML report after a run:
+
+```bash
+npm run test:report
+```
+
+## Project Structure
+
+```
+src/
+├── fixtures/
+│   └── base-test.ts              # Custom fixture — injects all page objects into tests
+└── pages/
+    ├── directbooks.page.ts       # Homepage, FAQ, Contact
+    ├── community-portal.page.ts
+    ├── why.page.ts
+    ├── who.page.ts
+    ├── how.page.ts
+    ├── what.page.ts
+    ├── senior-team.page.ts
+    ├── history.page.ts
+    ├── careers.page.ts
+    ├── newsroom.page.ts
+    ├── demo-request.page.ts
+    └── legal.page.ts             # Terms of Use, Privacy Policy, Cookie Policy
+tests/
+├── homepage.spec.ts              # Hero, messaging, sections, footer
+├── faq.spec.ts                   # FAQ content
+├── contact.spec.ts               # Contact info, phone numbers, emails
+├── solution.spec.ts              # Why, Who, How, What pages
+├── about.spec.ts                 # Senior Team, History, Careers pages
+├── newsroom.spec.ts              # Newsroom and Demo Request pages
+├── legal.spec.ts                 # Terms of Use, Privacy Policy, Cookie Policy
+└── community-portal.spec.ts      # Community Portal login page
 ```
 
 ## GitHub Actions
 
 **CI** — triggers on every push to `main` and every PR. Runs typecheck only, no E2E.
 
-**Nightly E2E** — runs the full suite (typecheck + E2E tests) nightly at 02:00 America/Sao_Paulo, or manually from GitHub Actions.
+**Nightly E2E** — runs the full suite nightly at 02:00 America/Sao_Paulo across Chromium, Firefox, and WebKit in parallel. Each browser uploads its own Playwright report artifact. Can also be triggered manually.
 
-To run E2E tests manually in GitHub:
+To run manually in GitHub:
 
 1. Open the repository in GitHub
 2. Go to **Actions**

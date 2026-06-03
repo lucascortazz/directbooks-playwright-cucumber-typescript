@@ -1,7 +1,0 @@
-{
-  "default": {
-    "features": ["features/**/*.feature"],
-    "require": ["src/steps/**/*.ts"],
-    "requireModule": ["ts-node/register"]
-  }
-}
