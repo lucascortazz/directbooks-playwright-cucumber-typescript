@@ -1,0 +1,6 @@
+{
+  "default": {
+    "features": ["features/**/*.feature"],
+    "glue": ["src/steps/**/*.ts"]
+  }
+}
